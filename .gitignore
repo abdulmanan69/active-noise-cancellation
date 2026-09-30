@@ -1,0 +1,8 @@
+/target
+/dist
+*.log
+*.wav
+!tests/data/*.wav
+# VB-CABLE driver pack is downloaded by build.ps1, not stored in the repository
+/installer/vbcable/
+/graphify-out/

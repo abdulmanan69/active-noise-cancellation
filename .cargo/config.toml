@@ -1,0 +1,5 @@
+# ClearMic build configuration.
+# The GNU target needs no Visual Studio / Windows SDK; rustup ships a self-contained
+# MinGW linker. `dlltool.exe` must be on PATH for windows-sys (build.ps1 handles it).
+[build]
+target = "x86_64-pc-windows-gnu"

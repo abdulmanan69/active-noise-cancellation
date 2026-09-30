@@ -1,0 +1,71 @@
+[package]
+name = "clearmic"
+version = "1.0.0"
+edition = "2024"
+description = "ClearMic - lightweight, enterprise-grade AI noise cancellation for any PC microphone"
+license = "MIT"
+repository = "https://github.com/abdulmanan69/active-noise-cancellation"
+authors = ["Abdul Manan"]
+default-run = "clearmic"
+
+[lib]
+name = "clearmic"
+path = "src/lib.rs"
+
+[[bin]]
+name = "clearmic"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+cpal = "0.18"
+# Pinned to the official v0.5.6 release together with the tract version from its lockfile
+# (see the tract pins below): the combination that shipped and is proven in the field.
+# The unreleased main branch moved to tract 0.21.4, which rejects the model graph in
+# debug builds ("duplicate name") and is incompatible with newer 0.21.x (ndarray 0.16).
+deep_filter = { git = "https://github.com/Rikorose/DeepFilterNet", rev = "978576aa8400552a4ce9730838c635aa30db5e61", default-features = false, features = ["tract", "default-model"] }
+directories = "6"
+eframe = { version = "0.36", default-features = false, features = ["default_fonts", "glow", "wayland", "x11"] }
+egui = "0.36"
+env_logger = "0.11"
+global-hotkey = "0.8"
+hound = "3"
+log = "0.4"
+ndarray = "0.15"
+ringbuf = "0.5"
+rubato = "5"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tray-icon = "0.26"
+# Exact tract release used by DeepFilterNet v0.5.6 (verified with tests/pipeline.rs and
+# the real-speech check described in the README). Do not bump without re-measuring.
+tract-core = "=0.19.16"
+tract-hir = "=0.19.16"
+tract-onnx = "=0.19.16"
+tract-pulse = "=0.19.16"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_System_Threading", "Win32_Foundation", "Win32_Media", "Win32_System_Console", "Win32_Security"] }
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+strip = true
+debug = false
+
+[profile.dev]
+opt-level = 1
+
+# Dependencies: optimized (real-time DSP is unusable otherwise) and without debug info
+# (with it every test executable is ~500 MB and the target directory grows past 10 GB).
+[profile.dev.package."*"]
+opt-level = 3
+debug = false
+
+# tract validates graph node names only in debug builds and rejects the DeepFilterNet
+# decoder graph there ("duplicate name"). Release builds skip that check, so match them.
+[profile.dev.package.tract-core]
+opt-level = 3
+debug = false
+debug-assertions = false
