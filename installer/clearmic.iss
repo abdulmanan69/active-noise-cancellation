@@ -6,7 +6,7 @@
 ; https://vb-audio.com/Services/licensing.htm). Company-wide deployments need licences.
 ; Build with /DNoDriver to produce an installer without the driver.
 #define AppName "ClearMic"
-#define AppVersion "1.0.0"
+#define AppVersion "1.0.1"
 #define AppExe "clearmic.exe"
 #ifndef NoDriver
   #if FileExists(SourcePath + "vbcable\pack\VBCABLE_Setup_x64.exe")
@@ -37,8 +37,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=admin
 WizardStyle=modern
-CloseApplications=yes
-RestartApplications=no
+CloseApplications=no
 
 [Tasks]
 #ifdef BundleDriver
@@ -101,6 +100,17 @@ begin
           Result := True;
           Exit;
         end;
+end;
+
+{ ClearMic hides to the tray when its window is closed, so stop it explicitly before
+  files are replaced during an upgrade. }
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  Code: Integer;
+begin
+  Exec(ExpandConstant('{cmd}'), '/C taskkill /IM {#AppExe} /F', '', SW_HIDE, ewWaitUntilTerminated, Code);
+  Sleep(500);
+  Result := '';
 end;
 
 function NeedRestart: Boolean;

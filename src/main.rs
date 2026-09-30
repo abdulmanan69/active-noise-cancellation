@@ -54,7 +54,7 @@ fn init_file_logger() {
     builder
         .filter_level(log::LevelFilter::Info)
         .filter_module("tract", log::LevelFilter::Warn)
-        .filter_module("df", log::LevelFilter::Warn)
+        .filter_module("df", log::LevelFilter::Error)
         .filter_module("eframe", log::LevelFilter::Warn)
         .filter_module("egui", log::LevelFilter::Warn)
         .filter_module("winit", log::LevelFilter::Warn)

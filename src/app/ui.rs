@@ -701,7 +701,7 @@ impl App {
                 .default_open(false)
                 .show(ui, |ui| {
                     ui.horizontal(|ui| {
-                        ui.label("Microphone gain");
+                        ui.label("Volume boost");
                         ui.add(
                             egui::Slider::new(&mut self.settings.input_gain_db, -12.0..=12.0)
                                 .step_by(0.5)

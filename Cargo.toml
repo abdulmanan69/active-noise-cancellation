@@ -1,6 +1,6 @@
 [package]
 name = "clearmic"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 description = "ClearMic - lightweight, enterprise-grade AI noise cancellation for any PC microphone"
 license = "MIT"

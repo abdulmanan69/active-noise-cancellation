@@ -222,3 +222,39 @@ fn real_speech_is_improved_not_damaged() {
         );
     }
 }
+
+/// The volume boost is applied after the model and can never clip the output.
+#[test]
+fn volume_boost_is_applied_after_the_model_and_stays_below_full_scale() {
+    let clean = load_speech(); // peaks around 0.5
+    let mut noisy = clean.clone();
+    noisy.resize(noisy.len().div_ceil(HOP_SIZE) * HOP_SIZE, 0.0);
+    let mut plain = Pipeline::new(ProcParams {
+        strength: 100,
+        ..Default::default()
+    })
+    .unwrap();
+    let mut boosted = Pipeline::new(ProcParams {
+        strength: 100,
+        input_gain_db: 12.0,
+        ..Default::default()
+    })
+    .unwrap();
+    let a = run(&mut plain, &noisy);
+    let b = run(&mut boosted, &noisy);
+    // Below the limiter knee the boosted output is exactly the plain output times the gain,
+    // which is only true when the model saw the same (unboosted) input in both runs.
+    let gain = 10f32.powf(12.0 / 20.0);
+    let mut compared = 0usize;
+    for (x, y) in a.iter().zip(&b) {
+        if (x * gain).abs() < 0.85 {
+            assert!((x * gain - y).abs() < 1e-3, "boost changed the model input: {x} -> {y}");
+            compared += 1;
+        }
+    }
+    assert!(compared > SAMPLE_RATE, "too few samples compared");
+    // the output is louder but never reaches full scale
+    let peak_b = b.iter().fold(0f32, |m, s| m.max(s.abs()));
+    assert!(peak_b <= 0.98 + 1e-4, "output peak {peak_b}");
+    assert!(rms(&b) > rms(&a) * 2.0, "boost had no effect");
+}

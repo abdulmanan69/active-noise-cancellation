@@ -26,7 +26,7 @@ are welcome: if you find it useful, please support its authors.
 
 ## Install
 
-1. Run `ClearMic-Setup-1.0.0.exe` and approve the Windows administrator prompt. This installs ClearMic
+1. Run `ClearMic-Setup-1.0.1.exe` and approve the Windows administrator prompt. This installs ClearMic
    and the VB-CABLE virtual microphone driver in one go.
 2. Restart Windows if the installer asks for it.
 3. Start ClearMic. It finds your microphone and the virtual microphone automatically.
@@ -96,7 +96,7 @@ aligned to it, so the two files can be compared directly.
 ## Deployment for IT teams
 
 - **Silent install:**
-  `ClearMic-Setup-1.0.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TASKS="vbcable,autostart"`.
+  `ClearMic-Setup-1.0.1.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TASKS="vbcable,autostart"`.
   Uninstall with `unins000.exe /VERYSILENT`; it offers to remove the driver it installed.
 - **Driver prompt:** the first time a VB-Audio driver is installed, Windows can ask the user to trust the
   publisher. For unattended rollouts add the "VB-Audio Software" certificate to Trusted Publishers by
@@ -122,7 +122,7 @@ Requirements: Rust (GNU toolchain) and, for the installer, Inno Setup 6. Visual 
 rustup toolchain install stable-x86_64-pc-windows-gnu
 .\build.ps1              # release build
 .\build.ps1 -Test        # run the test suite first
-.\build.ps1 -Installer   # also build dist\ClearMic-Setup-1.0.0.exe (app + VB-CABLE driver)
+.\build.ps1 -Installer   # also build dist\ClearMic-Setup-1.0.1.exe (app + VB-CABLE driver)
 ```
 
 `build.ps1` downloads two things once: GNU binutils from the w64devkit project, because the Rust GNU

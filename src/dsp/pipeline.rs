@@ -1,5 +1,8 @@
 //! Complete per-frame processing chain:
-//! input gain -> high-pass -> DeepFilterNet -> voice gate -> limiter.
+//! high-pass -> DeepFilterNet -> voice gate -> gain -> limiter.
+//!
+//! The gain sits after the model on purpose: boosting before it can push the model input
+//! past full scale (a +12 dB setting reached 3.8x in the field), which distorts speech.
 
 use anyhow::Result;
 
@@ -25,7 +28,7 @@ pub struct ProcParams {
     /// the model removes rumble on its own, and the filter rotates low-frequency phase
     /// (inaudible, but it lowers waveform-accuracy scores such as SI-SDR).
     pub high_pass: bool,
-    /// Microphone trim in dB (-24..=24).
+    /// Volume trim in dB (-24..=24), applied to the cleaned signal.
     pub input_gain_db: f32,
 }
 
@@ -116,7 +119,6 @@ impl Pipeline {
     pub fn process_frame(&mut self, frame: &mut [f32]) -> Result<FrameInfo> {
         debug_assert_eq!(frame.len(), HOP_SIZE);
         let (input_peak, input_rms) = peak_rms(frame);
-        self.gain.process(frame);
 
         let active = self.params.enabled && self.params.strength > 0;
         if self.params.high_pass && active {
@@ -137,6 +139,7 @@ impl Pipeline {
             true
         };
 
+        self.gain.process(frame);
         self.limiter.process(frame);
         let (output_peak, output_rms) = peak_rms(frame);
         Ok(FrameInfo {
